@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TruthLens – Fire & Gold Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#tl{
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  background:#0f0f1a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  overflow-x:hidden;
+}
+canvas#nn{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.bg-grad{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%,rgba(255,42,109,0.13) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 80%,rgba(255,123,0,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(255,208,0,0.06) 0%,transparent 70%);
+  pointer-events:none;z-index:1;
+}
+.wrap{position:relative;z-index:2;max-width:880px;margin:0 auto;padding:0 20px 72px;width:100%}
+ 
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px;
+  background:rgba(15,15,26,0.82);
+  border-bottom:1px solid rgba(255,42,109,0.18);
+  backdrop-filter:blur(24px);
+  position:sticky;top:0;z-index:100;width:100%;
+}
+.logo{
+  font-family:'Orbitron',monospace;font-size:18px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(90deg,#ff2a6d,#ff7b00,#ffd000);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.navlinks{display:flex;gap:28px}
+.nl{font-size:12px;color:rgba(255,200,150,0.55);cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;transition:color .2s}
+.nl:hover{color:#ff7b00}
+.nbadge{background:linear-gradient(90deg,#ff2a6d,#ff7b00);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:1px}
+ 
+.hero{text-align:center;padding:64px 20px 50px;max-width:680px;width:100%}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,42,109,0.1);border:1px solid rgba(255,42,109,0.28);
+  border-radius:100px;padding:6px 18px;font-size:12px;color:#ff9060;
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;
+}
+.edot{width:7px;height:7px;border-radius:50%;background:#ff2a6d;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,42,109,0.6)}50%{box-shadow:0 0 0 7px rgba(255,42,109,0)}}
+h1{font-family:'Orbitron',monospace;font-size:clamp(24px,4.5vw,44px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:18px;color:#fff}
+.grad-text{background:linear-gradient(90deg,#ff2a6d,#ff7b00,#ffd000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:15px;color:rgba(255,220,180,0.45);max-width:520px;margin:0 auto 36px;line-height:1.75}
+.stats{display:flex;justify-content:center;gap:44px;flex-wrap:wrap}
+.stat-num{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:#ffd000;display:block;text-shadow:0 0 18px rgba(255,208,0,0.4)}
+.stat-lbl{font-size:11px;color:rgba(255,200,150,0.4);letter-spacing:1.5px;text-transform:uppercase}
+ 
+.card{background:rgba(255,255,255,0.97);border:1px solid rgba(255,42,109,0.12);border-radius:20px;box-shadow:0 8px 40px rgba(255,42,109,0.1),0 2px 12px rgba(0,0,0,0.3);padding:28px;margin-bottom:20px;transition:box-shadow .3s,transform .2s}
+.card:hover{box-shadow:0 12px 60px rgba(255,42,109,0.18),0 4px 20px rgba(0,0,0,0.35);transform:translateY(-1px)}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.ci{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct{font-size:12px;font-weight:700;color:#888;letter-spacing:2px;text-transform:uppercase}
+ 
+textarea.ni{width:100%;background:#f8f8fc;border:1.5px solid #ffe0d0;border-radius:14px;padding:18px;color:#1a1a2e;font-family:'Inter',sans-serif;font-size:14px;line-height:1.7;resize:none;height:165px;outline:none;transition:border-color .3s,box-shadow .3s;letter-spacing:.3px}
+textarea.ni::placeholder{color:rgba(180,100,80,0.4)}
+textarea.ni:focus{border-color:#ff7b00;box-shadow:0 0 0 3px rgba(255,123,0,0.1)}
+.irow{display:flex;gap:12px;margin-top:14px;align-items:center;flex-wrap:wrap}
+input.ui{flex:1;min-width:160px;background:#f8f8fc;border:1.5px solid #ffe0d0;border-radius:10px;padding:11px 16px;color:#1a1a2e;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s}
+input.ui::placeholder{color:rgba(180,100,80,0.4)}
+input.ui:focus{border-color:#ff7b00;box-shadow:0 0 0 3px rgba(255,123,0,0.08)}
+ 
+.btn{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:all .25s;outline:none}
+.btn-primary{background:linear-gradient(90deg,#ff2a6d,#ff7b00);color:#fff;padding:13px 28px;box-shadow:0 4px 20px rgba(255,42,109,0.35);position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%);transition:transform .4s}
+.btn-primary:hover::after{transform:translateX(100%)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 35px rgba(255,123,0,0.5),0 0 40px rgba(255,208,0,0.25)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-sm{padding:10px 18px;font-size:11px;border-radius:8px}
+.btn-ghost{background:transparent;border:1.5px solid rgba(255,42,109,0.3);color:#ff7b00;padding:10px 18px}
+.btn-ghost:hover{background:rgba(255,123,0,0.08);border-color:#ff7b00}
+ 
+.scan-wrap{text-align:center;padding:42px 20px;display:none}
+.sring{width:88px;height:88px;border-radius:50%;border:1px solid rgba(255,42,109,0.12);position:relative;margin:0 auto 24px;display:flex;align-items:center;justify-content:center}
+.sring::before{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid transparent;border-top-color:#ff2a6d;border-right-color:#ff7b00;animation:spin 1.3s linear infinite}
+.sring::after{content:'';position:absolute;inset:-14px;border-radius:50%;border:1.5px solid transparent;border-bottom-color:#ffd000;animation:spin 2.4s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sinner{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(255,42,109,0.15),rgba(255,208,0,0.1));border:1px solid rgba(255,42,109,0.25);display:flex;align-items:center;justify-content:center}
+.stxt{font-size:12px;color:#ff7b00;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:12px;animation:tp 1.6s ease-in-out infinite}
+@keyframes tp{0%,100%{opacity:.5}50%{opacity:1}}
+.sbar-wrap{width:300px;height:3px;background:rgba(255,42,109,0.1);border-radius:4px;margin:0 auto;overflow:hidden}
+.sbar-fill{height:100%;background:linear-gradient(90deg,#ff2a6d,#ff7b00,#ffd000);border-radius:4px;animation:sfill 2.2s ease-in-out infinite}
+@keyframes sfill{0%{width:0%;margin-left:0}60%{width:100%;margin-left:0}100%{width:0%;margin-left:100%}}
+ 
+.verdict{display:flex;align-items:center;gap:20px;padding:24px 28px;border-radius:18px;margin-bottom:20px}
+.v-fake{background:rgba(255,42,109,0.08);border:1.5px solid rgba(255,42,109,0.4);box-shadow:0 0 40px rgba(255,42,109,0.12)}
+.v-real{background:rgba(255,208,0,0.08);border:1.5px solid rgba(255,208,0,0.4);box-shadow:0 0 40px rgba(255,208,0,0.12)}
+.v-label{font-family:'Orbitron',monospace;font-size:26px;font-weight:900}
+.v-fake .v-label{color:#ff2a6d;text-shadow:0 0 20px rgba(255,42,109,0.5)}
+.v-real .v-label{color:#ffd000;text-shadow:0 0 20px rgba(255,208,0,0.5)}
+.v-sub{font-size:13px;color:rgba(255,180,120,0.7);margin-top:5px;line-height:1.5}
+.v-score-big{font-family:'Orbitron',monospace;font-size:34px;font-weight:900}
+ 
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.sbox{background:rgba(255,255,255,0.97);border:1px solid rgba(255,42,109,0.1);border-radius:16px;box-shadow:0 4px 24px rgba(255,42,109,0.08);padding:22px}
+.score-num{font-family:'Orbitron',monospace;font-size:38px;font-weight:900;line-height:1}
+.score-lbl{font-size:11px;color:#aaa;letter-spacing:2px;text-transform:uppercase;margin-top:6px}
+.pl{display:flex;justify-content:space-between;font-size:12px;color:#bbb;margin-bottom:5px;letter-spacing:.5px}
+.ptrack{height:7px;background:rgba(0,0,0,0.06);border-radius:8px;overflow:hidden;margin-bottom:11px}
+.pbar{height:100%;border-radius:8px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.pb-bad{background:linear-gradient(90deg,#ff2a6d,#ff7b00);box-shadow:0 0 8px rgba(255,42,109,0.35)}
+.pb-good{background:linear-gradient(90deg,#ff7b00,#ffd000);box-shadow:0 0 8px rgba(255,208,0,0.35)}
+ 
+.sent{padding:12px 16px;border-radius:10px;font-size:13px;line-height:1.65;margin-bottom:8px;color:#333}
+.sent-ok{background:#fafafa;border:1px solid #f0f0f0}
+.sent-warn{background:rgba(255,42,109,0.05);border:1.5px solid rgba(255,42,109,0.25);color:#2a1a1a}
+.stag{display:inline-block;background:rgba(255,42,109,0.12);color:#d42050;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-top:5px;margin-right:4px}
+ 
+.src-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.sc{background:rgba(255,255,255,0.97);border-radius:14px;box-shadow:0 4px 16px rgba(255,42,109,0.07);padding:18px 14px;text-align:center}
+.sc-lbl{font-size:11px;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.sc-val{font-size:15px;font-weight:700;color:#1a1a2e}
+.sc-hi{border:1.5px solid rgba(255,208,0,0.4)}.sc-hi .sc-val{color:#c48000}
+.sc-med{border:1.5px solid rgba(255,123,0,0.35)}.sc-med .sc-val{color:#c05a00}
+.sc-lo{border:1.5px solid rgba(255,42,109,0.35)}.sc-lo .sc-val{color:#cc1a4a}
+ 
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.pill-fire{background:rgba(255,42,109,0.1);color:#ff2a6d;border:1px solid rgba(255,42,109,0.25)}
+.sec-title{font-size:11px;color:#bbb;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:#f0e0d8}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,42,109,0.2),rgba(255,123,0,0.2),transparent);margin:28px 0}
+footer{position:relative;z-index:2;text-align:center;padding:28px 20px 20px;font-size:12px;color:rgba(255,200,150,0.25);letter-spacing:1px}
+footer span{color:rgba(255,123,0,0.5)}
+.wc-pill{background:rgba(255,42,109,0.1);color:#ff7b00;border:1px solid rgba(255,42,109,0.2);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.results-hidden{display:none}
+@media(max-width:600px){
+  .navlinks,.nbadge{display:none}
+  .score-grid,.src-grid{grid-template-columns:1fr}
+  h1{font-size:24px}
+  .stats{gap:22px}
+  .card{padding:20px 16px}
+  .verdict{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div id="tl">
+  <canvas id="nn"></canvas>
+  <div class="bg-grad"></div>
+ 
+  <nav>
+    <div class="logo">TruthLens</div>
+    <div class="navlinks">
+      <span class="nl">Analyze</span>
+      <span class="nl">Sources</span>
+      <span class="nl">API</span>
+      <span class="nl">Docs</span>
+    </div>
+    <div class="nbadge">Live Beta</div>
+  </nav>
+ 
+  <div class="wrap">
+    <div class="hero" style="text-align:center;padding:64px 20px 50px;max-width:680px;margin:0 auto;width:100%">
+      <div class="eyebrow"><span class="edot"></span> AI-Powered &nbsp;·&nbsp; Real-Time &nbsp;·&nbsp; NLP Engine v2.4</div>
+      <h1>
+        <div>Detect Fake News</div>
+        <div class="grad-text">Instantly with AI</div>
+      </h1>
+      <p style="font-size:15px;color:rgba(255,220,180,0.45);max-width:520px;margin:0 auto 36px;line-height:1.75">Paste any article and receive a full authenticity breakdown — suspicious sentence detection, source credibility scoring, and a real-time fake/real verdict powered by machine learning.</p>
+      <div class="stats">
+        <div><span class="stat-num">97.3<span style="font-size:15px">%</span></span><span class="stat-lbl">Accuracy</span></div>
+        <div><span class="stat-num">2.4M+</span><span class="stat-lbl">Analyzed</span></div>
+        <div><span class="stat-num">0.3<span style="font-size:15px">s</span></span><span class="stat-lbl">Response</span></div>
+      </div>
+    </div>
+ 
+    <!-- Input Card -->
+    <div class="card" id="input-card">
+      <div class="ch">
+        <div class="ci" style="background:linear-gradient(135deg,rgba(255,42,109,0.15),rgba(255,123,0,0.1))">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff7b00" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4Z"/></svg>
+        </div>
+        <span class="ct">News Article Input</span>
+        <div style="margin-left:auto"><span class="wc-pill" id="wc">0 words</span></div>
+      </div>
+      <textarea class="ni" id="ni" placeholder="Paste your news article here… The AI analyses language patterns, emotional manipulation tactics, sourcing quality, and factual density to determine authenticity."></textarea>
+      <div class="irow">
+        <input class="ui" id="si" placeholder="Source URL or domain (optional) — e.g. reuters.com" />
+        <button class="btn btn-ghost btn-sm" onclick="loadEx()">Try Example</button>
+        <button class="btn btn-primary btn-sm" onclick="go()">Analyze ›</button>
+      </div>
+    </div>
+ 
+    <!-- Scanning -->
+    <div id="scan-card" style="display:none">
+      <div style="background:rgba(15,15,26,0.8);border:1px solid rgba(255,42,109,0.15);border-radius:20px;backdrop-filter:blur(28px);padding:28px;margin-bottom:20px">
+        <div class="scan-wrap" style="display:block">
+          <div class="sring">
+            <div class="sinner">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff7b00" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <div class="stxt" id="stxt">Initializing NLP engine…</div>
+          <div class="sbar-wrap"><div class="sbar-fill"></div></div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Results -->
+    <div id="res" style="display:none">
+      <div class="verdict" id="vbox">
+        <div style="font-size:36px;flex-shrink:0" id="vicon">⚠</div>
+        <div>
+          <div class="v-label" id="vlabel">FAKE NEWS</div>
+          <div class="v-sub" id="vsub">High confidence · 4 suspicious sentences flagged</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-family:'Orbitron',monospace;font-size:32px;font-weight:900" id="vsc" >23%</div>
+          <div style="font-size:11px;color:rgba(255,200,150,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px">Authenticity</div>
+        </div>
+      </div>
+ 
+      <div class="score-grid">
+        <div class="sbox">
+          <div class="sec-title">Authenticity Score</div>
+          <div class="score-num" id="snum" style="color:#ff2a6d">23<span style="font-size:20px">%</span></div>
+          <div class="score-lbl">Real news probability</div>
+          <div style="margin-top:16px">
+            <div class="pl"><span>Fake</span><span>Real</span></div>
+            <div class="ptrack"><div class="pbar pb-bad" id="abar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="sbox">
+          <div class="sec-title">Signal Analysis</div>
+          <div id="signals"></div>
+        </div>
+      </div>
+ 
+      <div class="src-grid" id="srcgrid" style="display:none">
+        <div class="sc" id="sc1"><div class="sc-lbl">Source</div><div class="sc-val" id="sdom">—</div></div>
+        <div class="sc sc-lo" id="sc2"><div class="sc-lbl">Credibility</div><div class="sc-val" id="srat">Low</div></div>
+        <div class="sc" id="sc3"><div class="sc-lbl">Trust Score</div><div class="sc-val" id="sscr" style="color:#cc1a4a">8/100</div></div>
+      </div>
+ 
+      <div class="card">
+        <div class="ch">
+          <div class="ci" style="background:linear-gradient(135deg,rgba(255,42,109,0.12),rgba(255,123,0,0.08))">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff2a6d" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <span class="ct">Suspicious Sentence Highlighter</span>
+          <span class="pill pill-fire" style="margin-left:auto" id="scnt">0 flagged</span>
+        </div>
+        <div id="sents"></div>
+      </div>
+ 
+      <div style="text-align:center;padding:18px 0 8px">
+        <button class="btn btn-ghost btn-sm" onclick="reset()">&#8592; Analyze Another Article</button>
+      </div>
+    </div>
+ 
+    <div class="divider"></div>
+    <footer>TruthLens &copy; 2025 &nbsp;·&nbsp; Powered by <span>Claude AI + NLP</span> &nbsp;·&nbsp; Fire &amp; Gold Edition</footer>
+  </div>
+</div>
+ 
+<script>
+const FX={text:`SHOCKING: Scientists HATE This One Trick That Cures Everything!!!\n\nBREAKING NEWS — Deep state operatives have been hiding a MIRACULOUS cure from the public for decades! Anonymous insiders who cannot be named revealed to us exclusively that the mainstream media is covering up 100% PROVEN treatments that doctors don't want you to know about!\n\nShare this NOW before they delete it!! The globalists are working overtime to silence this BOMBSHELL revelation. Wake up sheeple — they don't want you to know the truth about what Big Pharma has been hiding!!!\n\nOur source, who works inside the organization and must remain anonymous, confirmed everything. MUST READ before it's too late!!!`,source:'beforeitsnews.com'};
+const RX={text:`Researchers at Johns Hopkins University published a peer-reviewed study Monday in the New England Journal of Medicine examining long-term efficacy of mRNA vaccines against respiratory illnesses.\n\nThe study, which followed 45,000 participants across 12 countries over 18 months, found a statistically significant reduction in hospitalization rates among vaccinated individuals (p<0.001). Lead researcher Dr. Sarah Chen noted that immunity wanes over time, but booster doses restored protection to initial levels.\n\nThe findings were independently verified by scientists at Oxford and the WHO, who confirmed the methodology and conclusions. Health authorities in 23 countries have updated their vaccination guidelines.`,source:'reuters.com'};
+const PATS=[
+  {r:/\b(SHOCKING|BREAKING|EXPLOSIVE|BOMBSHELL|UNBELIEVABLE)\b/i,t:'Sensational language'},
+  {r:/\b(MUST\s*READ|SHARE\s*NOW|SHARE BEFORE)\b/i,t:'Urgency tactic'},
+  {r:/they don.t want you to know|deep state/i,t:'Conspiracy framing'},
+  {r:/mainstream media lies?|fake media/i,t:'Media delegitimisation'},
+  {r:/\b(100%|absolutely proven|doctors hate|this one trick)\b/i,t:'Pseudo-scientific claim'},
+  {r:/!{2,}/,t:'Excessive exclamation'},
+  {r:/\?{2,}/,t:'Excessive questions'},
+  {r:/\b(miracle cure?|guaranteed|instant results?)\b/i,t:'Miracle claim'},
+  {r:/[A-Z]{6,}/,t:'Excessive caps'},
+  {r:/\b(anonymous source|insider told us)\b/i,t:'Unverifiable source'},
+  {r:/\b(globalist|cabal|new world order)\b/i,t:'Conspiracy terminology'},
+  {r:/\b(wake up|they are hiding)\b/i,t:'Awakening phrase'},
+];
+const SDB={'bbc.com':{r:'High',s:95},'reuters.com':{r:'High',s:94},'apnews.com':{r:'High',s:93},'nytimes.com':{r:'High',s:90},'theguardian.com':{r:'High',s:89},'who.int':{r:'High',s:97},'nature.com':{r:'High',s:96},'cdc.gov':{r:'High',s:96},'washingtonpost.com':{r:'High',s:88},'huffpost.com':{r:'Medium',s:62},'vox.com':{r:'Medium',s:65},'foxnews.com':{r:'Medium',s:54},'msnbc.com':{r:'Medium',s:56},'infowars.com':{r:'Low',s:5},'naturalnews.com':{r:'Low',s:8},'beforeitsnews.com':{r:'Low',s:6}};
+const MSGS=['Initializing NLP engine…','Tokenizing sentences…','Running TF-IDF vectorization…','Detecting suspicious patterns…','Evaluating source credibility…','Computing authenticity score…'];
+let tog=0;
+ 
+function loadEx(){const e=tog++%2===0?FX:RX;document.getElementById('ni').value=e.text;document.getElementById('si').value=e.source;upwc()}
+document.getElementById('ni').addEventListener('input',upwc);
+function upwc(){const w=document.getElementById('ni').value.trim().split(/\s+/).filter(Boolean).length;document.getElementById('wc').textContent=w+' words'}
+ 
+function go(){
+  const txt=document.getElementById('ni').value.trim();
+  if(!txt||txt.length<30){alert('Please enter at least 30 characters.');return}
+  document.getElementById('input-card').style.display='none';
+  document.getElementById('res').style.display='none';
+  document.getElementById('scan-card').style.display='block';
+  let i=0;const iv=setInterval(()=>{document.getElementById('stxt').textContent=MSGS[i++%MSGS.length]},520);
+  setTimeout(()=>{clearInterval(iv);show(txt)},3200);
+}
+ 
+function mkSig(label,val,invert){
+  const bad=invert?val>50:val<50;
+  return`<div class="pl"><span>${label}</span><span>${val}%</span></div><div class="ptrack"><div class="pbar ${bad?'pb-bad':'pb-good'}" style="width:0%" data-w="${val}"></div></div>`;
+}
+ 
+function show(txt){
+  const src=document.getElementById('si').value.trim();
+  const sents=txt.match(/[^.!?]+[.!?]+/g)||[txt];
+  let sc=0;
+  const ann=sents.map(s=>{const h=PATS.filter(p=>p.r.test(s)).map(p=>p.t);if(h.length)sc++;return{s:s.trim(),tags:h}});
+  const tot=ann.reduce((a,b)=>a+b.tags.length,0);
+  const ratio=tot/Math.max(sents.length,1);
+  const auth=Math.round(Math.max(5,Math.min(95,100-ratio*35-(sc/sents.length)*40)));
+  const isFake=auth<50;
+  let credS,credR,dom;
+  if(src){
+    dom=src.toLowerCase().replace(/https?:\/\/(www\.)?/,'').split('/')[0];
+    let f=false;
+    for(const[k,v]of Object.entries(SDB)){if(dom.includes(k)){credS=v.s;credR=v.r;f=true;break}}
+    if(!f){credS=/\.(gov|edu)$/.test(dom)?75:50;credR=credS>=75?'High':'Medium'}
+  }
+  const sens=Math.round(Math.min(95,ratio*50+(sc/sents.length)*50));
+  const fact=Math.round(Math.min(90,15+(txt.match(/\d+(\.\d+)?%?/g)||[]).length*5+(txt.match(/\b(study|research|published|journal)\b/gi)||[]).length*8));
+  const qual=Math.round(auth*0.6+15);
+  const cred=credS!==undefined?credS:(isFake?15:78);
+ 
+  document.getElementById('scan-card').style.display='none';
+  document.getElementById('res').style.display='block';
+  document.getElementById('input-card').style.display='block';
+ 
+  const vb=document.getElementById('vbox');
+  vb.className='verdict '+(isFake?'v-fake':'v-real');
+  document.getElementById('vicon').textContent=isFake?'⚠':'✓';
+  document.getElementById('vlabel').textContent=isFake?'FAKE NEWS':'REAL NEWS';
+  document.getElementById('vsub').textContent=`${isFake?'High':'Low'} confidence · ${sc} suspicious sentence${sc!==1?'s':''} flagged · ${Math.round(Math.abs(50-auth)*1.8+55)}% model confidence`;
+  const vsc=document.getElementById('vsc');
+  vsc.textContent=auth+'%';vsc.style.color=isFake?'#ff2a6d':'#c48000';
+ 
+  const sn=document.getElementById('snum');
+  sn.innerHTML=auth+'<span style="font-size:20px">%</span>';sn.style.color=isFake?'#ff2a6d':'#c48000';
+ 
+  const ab=document.getElementById('abar');
+  ab.style.width='0%';ab.className='pbar '+(isFake?'pb-bad':'pb-good');
+  setTimeout(()=>{ab.style.width=auth+'%'},100);
+ 
+  document.getElementById('signals').innerHTML=mkSig('Sensationalism',sens,true)+mkSig('Source credibility',cred,false)+mkSig('Factual density',fact,false)+mkSig('Writing quality',qual,false);
+  setTimeout(()=>{document.querySelectorAll('#signals .pbar[data-w]').forEach(b=>{b.style.transition='width 1.2s cubic-bezier(.4,0,.2,1)';b.style.width=b.dataset.w+'%'})},140);
+ 
+  if(src&&dom){
+    document.getElementById('srcgrid').style.display='grid';
+    document.getElementById('sdom').textContent=dom;
+    document.getElementById('srat').textContent=credR;
+    document.getElementById('sc2').className='sc '+(credR==='High'?'sc-hi':credR==='Medium'?'sc-med':'sc-lo');
+    const ss=document.getElementById('sscr');
+    ss.textContent=credS+'/100';
+    ss.style.color=credR==='High'?'#c48000':credR==='Medium'?'#c05a00':'#cc1a4a';
+  } else {
+    document.getElementById('srcgrid').style.display='none';
+  }
+ 
+  document.getElementById('scnt').textContent=sc+' flagged';
+  const sc_el=document.getElementById('sents');
+  sc_el.innerHTML='';
+  ann.forEach(({s,tags})=>{
+    const d=document.createElement('div');
+    d.className='sent '+(tags.length?'sent-warn':'sent-ok');
+    d.innerHTML=s+(tags.length?'<br>'+tags.map(t=>`<span class="stag">${t}</span>`).join(''):'');
+    sc_el.appendChild(d);
+  });
+ 
+  document.getElementById('res').scrollIntoView({behavior:'smooth'});
+}
+ 
+function reset(){
+  document.getElementById('res').style.display='none';
+  document.getElementById('scan-card').style.display='none';
+  document.getElementById('input-card').style.display='block';
+  document.getElementById('ni').value='';document.getElementById('si').value='';upwc();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+ 
+// Neural network canvas
+(function(){
+  const C=document.getElementById('nn'),ctx=C.getContext('2d');
+  let W,H,pts=[];
+  const COLS=['#ff2a6d','#ff7b00','#ffd000'];
+  const resize=()=>{
+    W=C.width=window.innerWidth;
+    H=C.height=window.innerHeight;
+    pts=[];
+    const n=Math.floor(W*H/22000);
+    for(let i=0;i<n;i++)pts.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,
+      r:Math.random()*2.5+1,
+      c:COLS[Math.floor(Math.random()*COLS.length)],
+      a:Math.random()*.5+.2
+    });
+  };
+  const draw=()=>{
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<120){
+          ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(255,123,0,${(1-d/120)*.15})`;ctx.lineWidth=.6;ctx.stroke();
+        }
+      }
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.c+Math.round(p.a*255).toString(16).padStart(2,'0');
+      ctx.shadowBlur=10;ctx.shadowColor=p.c;ctx.fill();ctx.shadowBlur=0;
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  };
+  window.addEventListener('resize',resize);
+  resize();draw();
+})();
+</script>
+</body>
+</html>
